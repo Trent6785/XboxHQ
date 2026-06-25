@@ -1,0 +1,19 @@
+# Netlify configuration for XboxHQ.
+# The site is the static "public" folder; the backend runs as serverless functions.
+
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+# Map the frontend's /api/* calls to the matching functions.
+# The specific achievements rule MUST come before the wildcard (first match wins).
+
+[[redirects]]
+  from = "/api/achievements/:id"
+  to = "/.netlify/functions/achievements?titleId=:id"
+  status = 200
+
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>XboxHQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0b0f0c; --panel: #11160f; --card: #161d14; --card-hi: #1c2419;
+    --line: #232c1f; --line-hi: #33402c;
+    --green: #2a7d14; --live: #7ed321; --ink: #edf1e8; --dim: #8a9581; --dim2: #798571;
+  }
+  body { background: var(--bg); color: var(--ink); font-family: 'Inter', sans-serif; -webkit-font-smoothing: antialiased; }
+  .app { max-width: 1100px; margin: 0 auto; min-height: 100vh; border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
+  .arc { font-family: 'Archivo', sans-serif; }
+  .eyebrow { font-family: 'Archivo'; font-weight: 700; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--dim); }
+
+  .topbar { display: flex; align-items: center; height: 64px; padding: 0 24px; border-bottom: 1px solid var(--line); background: var(--panel); position: sticky; top: 0; z-index: 10; }
+  .logo { display: flex; align-items: center; gap: 10px; margin-right: 34px; }
+  .sphere { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--live); display: flex; align-items: center; justify-content: center; }
+  .logo-txt { font-family: 'Archivo'; font-weight: 800; font-size: 17px; }
+  .logo-txt span { font-weight: 500; color: var(--dim); }
+  .tabs { display: flex; gap: 4px; }
+  .tab { font-family: 'Archivo'; font-weight: 600; font-size: 12px; letter-spacing: .5px; color: var(--dim2); padding: 8px 15px; border-radius: 7px; cursor: pointer; background: transparent; border: none; transition: all .15s; }
+  .tab:hover { color: var(--ink); background: var(--card); }
+  .tab.on { color: var(--ink); background: var(--card-hi); }
+  .me { margin-left: auto; display: flex; align-items: center; gap: 14px; }
+  .gs { display: flex; align-items: center; gap: 8px; padding: 6px 13px 6px 8px; border: 1px solid var(--line-hi); border-radius: 20px; }
+  .hex { width: 18px; height: 20px; clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); background: var(--live); display: flex; align-items: center; justify-content: center; }
+  .hex b { font-family: 'Archivo'; font-weight: 900; font-size: 10px; color: var(--bg); }
+  .gs-num { font-family: 'Archivo'; font-weight: 700; font-size: 13px; color: var(--live); }
+  .av { width: 32px; height: 32px; border-radius: 9px; background: linear-gradient(135deg,#2a7d14,#173f0a); display: flex; align-items: center; justify-content: center; font-family: 'Archivo'; font-weight: 800; font-size: 12px; color: var(--live); object-fit: cover; }
+  img.av { padding: 0; }
+
+  .demo-banner { background: #2a2410; border-bottom: 1px solid #4a3f1a; color: #e8c860; font-size: 12px; padding: 8px 24px; text-align: center; }
+  .demo-banner.hidden { display: none; }
+
+  .screen { display: none; }
+  .screen.on { display: block; }
+
+  .stage { display: grid; grid-template-columns: 1.7fr 1fr; }
+  .main { padding: 26px; border-right: 1px solid var(--line); min-height: 500px; }
+  .rail { padding: 26px 24px; background: #0e120c; }
+
+  .hero { position: relative; border-radius: 14px; overflow: hidden; border: 1px solid var(--line-hi); background: linear-gradient(115deg,#14271f,#0f1a24 55%,#0c1410); padding: 24px; min-height: 230px; display: flex; flex-direction: column; justify-content: flex-end; }
+  .hero .eyebrow { color: var(--live); }
+  .hero h1 { font-family: 'Archivo'; font-weight: 800; font-size: 34px; line-height: 1; letter-spacing: -.5px; margin: 8px 0 16px; }
+  .prog-wrap { display: flex; align-items: center; gap: 14px; margin-bottom: 18px; }
+  .prog-bar { flex: 1; height: 5px; background: #0006; border-radius: 3px; overflow: hidden; }
+  .prog-fill { height: 100%; background: var(--live); border-radius: 3px; }
+  .prog-txt { font-size: 12px; color: #b9c4af; font-weight: 500; white-space: nowrap; }
+  .hero-cta { display: flex; gap: 10px; }
+  .btn { font-family: 'Archivo'; font-weight: 700; font-size: 12.5px; padding: 11px 20px; border-radius: 9px; cursor: pointer; border: none; transition: all .15s; }
+  .btn-pri { background: var(--live); color: #0a1004; }
+  .btn-pri:hover { background: #93e836; }
+  .btn-ghost { background: #ffffff10; color: var(--ink); border: 1px solid var(--line-hi); }
+  .btn-ghost:hover { background: #ffffff1a; }
+
+  .lib-head { display: flex; align-items: baseline; justify-content: space-between; margin: 28px 0 14px; }
+  .lib { display: grid; grid-template-columns: repeat(4,1fr); gap: 13px; }
+  .tile { position: relative; border-radius: 11px; overflow: hidden; cursor: pointer; border: 1px solid var(--line); aspect-ratio: 3/4; transition: all .18s; background: #1a1a1a; }
+  .tile:hover { border-color: var(--live); transform: translateY(-3px); }
+  .tile-art { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Archivo'; font-weight: 900; font-size: 13px; text-align: center; line-height: 1.1; padding: 10px; }
+  .tile-art img { width: 100%; height: 100%; object-fit: cover; }
+  .tile-grad { position: absolute; inset: 0; background: linear-gradient(to top,#000c,transparent 55%); }
+  .tile-meta { position: absolute; left: 0; right: 0; bottom: 0; padding: 9px 10px; }
+  .tile-name { font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tile-gs { font-size: 10px; color: var(--live); font-weight: 600; font-family: 'Archivo'; margin-top: 3px; }
+
+  .ring-card { display: flex; align-items: center; gap: 18px; padding-bottom: 22px; border-bottom: 1px solid var(--line); margin-bottom: 22px; }
+  .ring { position: relative; width: 84px; height: 84px; flex-shrink: 0; }
+  .ring svg { transform: rotate(-90deg); }
+  .ring-ctr { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .ring-ctr b { font-family: 'Archivo'; font-weight: 800; font-size: 18px; color: var(--live); line-height: 1; }
+  .ring-ctr span { font-size: 9px; color: var(--dim2); margin-top: 2px; }
+  .ring-info p { font-size: 13px; color: #b9c4af; line-height: 1.5; margin-top: 6px; }
+  .ring-info p b { font-family: 'Archivo'; color: var(--ink); font-weight: 700; }
+
+  .stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1px; background: var(--line); border-radius: 11px; overflow: hidden; margin-bottom: 24px; }
+  .stat { background: var(--card); padding: 14px 12px; text-align: center; }
+  .stat b { font-family: 'Archivo'; font-weight: 800; font-size: 20px; display: block; line-height: 1; }
+  .stat span { font-size: 9.5px; color: var(--dim2); text-transform: uppercase; letter-spacing: 1px; margin-top: 5px; display: block; }
+
+  .rail-sec .eyebrow { display: flex; align-items: center; gap: 7px; margin-bottom: 14px; }
+  .rail-sec .eyebrow i { width: 6px; height: 6px; border-radius: 50%; background: var(--live); }
+  .friend { display: flex; align-items: center; gap: 11px; padding: 9px 0; }
+  .f-av { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: 'Archivo'; font-weight: 800; font-size: 13px; flex-shrink: 0; position: relative; overflow: hidden; background: #1a2a4a; color: #7eb3ff; }
+  .f-av img { width: 100%; height: 100%; object-fit: cover; }
+  .f-av::after { content: ''; position: absolute; bottom: -2px; right: -2px; width: 11px; height: 11px; border-radius: 50%; background: var(--live); border: 2px solid #0e120c; }
+  .f-name { font-size: 13px; font-weight: 600; }
+  .f-game { font-size: 11px; color: var(--dim2); margin-top: 1px; }
+  .empty { font-size: 12px; color: var(--dim2); padding: 8px 0; }
+
+  /* GUIDE */
+  .g-head { position: relative; padding: 22px 24px; border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 16px; overflow: hidden; }
+  .g-head-bg { position: absolute; inset: 0; opacity: .18; }
+  .g-back { position: relative; font-family: 'Archivo'; font-weight: 600; font-size: 12px; background: #ffffff10; border: 1px solid var(--line-hi); color: var(--ink); padding: 9px 14px; border-radius: 8px; cursor: pointer; }
+  .g-titles { position: relative; }
+  .g-titles h2 { font-family: 'Archivo'; font-weight: 800; font-size: 22px; }
+  .g-titles p { font-size: 12px; color: var(--dim); margin-top: 3px; }
+  .g-tabs { display: flex; gap: 2px; padding: 0 24px; border-bottom: 1px solid var(--line); background: var(--panel); }
+  .g-tab { font-family: 'Archivo'; font-weight: 600; font-size: 12.5px; color: var(--dim2); padding: 14px 16px; cursor: pointer; border-bottom: 2px solid transparent; }
+  .g-tab:hover { color: var(--ink); }
+  .g-tab.on { color: var(--ink); border-bottom-color: var(--live); }
+  .g-body { padding: 22px 24px; }
+
+  .mission { display: flex; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+  .m-hex { width: 26px; height: 29px; clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-family: 'Archivo'; font-weight: 800; font-size: 11px; }
+  .m-hex.done { background: var(--green); color: var(--live); }
+  .m-hex.curr { background: var(--live); color: #0a1004; }
+  .m-hex.lock { background: var(--card-hi); color: #4a554d; }
+  .m-name { font-size: 14px; font-weight: 500; flex: 1; }
+  .mission.is-done .m-name { color: var(--dim2); }
+  .m-tag { font-family: 'Archivo'; font-weight: 700; font-size: 10px; padding: 4px 9px; border-radius: 6px; }
+  .t-done { color: var(--dim); } .t-curr { background: #7ed32118; color: var(--live); } .t-lock { color: #4a554d; }
+
+  .ach { display: flex; align-items: center; gap: 14px; padding: 13px 14px; background: var(--card); border: 1px solid var(--line); border-radius: 11px; margin-bottom: 10px; }
+  .ach.locked { opacity: .5; }
+  .a-hex { width: 40px; height: 45px; clip-path: polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; overflow: hidden; }
+  .a-hex img { width: 100%; height: 100%; object-fit: cover; }
+  .a-hex.unlocked { background: linear-gradient(135deg,#2a7d14,#1a4d0c); }
+  .a-hex.lk { background: var(--card-hi); }
+  .a-name { font-size: 13.5px; font-weight: 600; }
+  .a-desc { font-size: 11.5px; color: var(--dim2); margin-top: 2px; }
+  .a-gs { margin-left: auto; font-family: 'Archivo'; font-weight: 800; font-size: 14px; color: var(--live); flex-shrink: 0; }
+
+  .tip { padding: 14px 16px; background: var(--card); border-radius: 11px; margin-bottom: 10px; border: 1px solid var(--line); }
+  .tip .eyebrow { color: var(--live); margin-bottom: 7px; }
+  .tip p { font-size: 13.5px; color: #c2ccb8; line-height: 1.55; }
+  .authored-note { font-size: 11px; color: var(--dim2); margin-bottom: 14px; font-style: italic; }
+
+  .loading { color: var(--dim2); font-size: 13px; padding: 20px 0; }
+
+  /* Activity feed */
+  .act { display: flex; align-items: flex-start; gap: 11px; padding: 9px 0; }
+  .act-chip { width: 30px; height: 30px; border-radius: 9px; background: var(--card-hi); display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+  .act-text { font-size: 12.5px; color: var(--ink); line-height: 1.35; }
+  .act-sub { font-size: 11px; color: var(--live); font-family: 'Archivo'; font-weight: 600; margin-top: 2px; }
+  .act-sub.muted { color: var(--dim2); font-weight: 400; font-family: 'Inter'; }
+
+  /* Segmented toggle */
+  .showcase-toggle { display: flex; gap: 2px; background: var(--card); border: 1px solid var(--line); border-radius: 9px; padding: 3px; }
+  .seg { font-family: 'Archivo'; font-weight: 600; font-size: 12px; color: var(--dim2); background: transparent; border: none; padding: 7px 16px; border-radius: 6px; cursor: pointer; transition: all .15s; }
+  .seg:hover { color: var(--ink); }
+  .seg.on { color: var(--bg); background: var(--live); }
+
+  /* Media grid */
+  .media-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+  .media-card { position: relative; border-radius: 11px; overflow: hidden; cursor: pointer; border: 1px solid var(--line); aspect-ratio: 16/9; background: #141414; transition: all .18s; }
+  .media-card:hover { border-color: var(--live); transform: translateY(-3px); }
+  .media-thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .media-ph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'Archivo'; font-weight: 800; font-size: 13px; text-align: center; padding: 10px; }
+  .media-grad { position: absolute; inset: 0; background: linear-gradient(to top,#000c,transparent 55%); }
+  .media-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 44px; height: 44px; border-radius: 50%; background: #000a; border: 2px solid #fff; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 16px; padding-left: 3px; }
+  .media-meta { position: absolute; left: 0; right: 0; bottom: 0; padding: 9px 11px; display: flex; justify-content: space-between; align-items: flex-end; }
+  .media-game { font-size: 11px; font-weight: 600; color: #fff; }
+  .media-badge { font-family: 'Archivo'; font-weight: 700; font-size: 10px; color: #fff; background: #000a; padding: 2px 7px; border-radius: 5px; }
+
+  /* Lightbox */
+  .lightbox { position: fixed; inset: 0; background: #000d; display: none; align-items: center; justify-content: center; z-index: 100; padding: 5vw; }
+  .lightbox.on { display: flex; }
+  .lb-close { position: absolute; top: 20px; right: 24px; width: 40px; height: 40px; border-radius: 50%; background: #ffffff15; border: 1px solid var(--line-hi); color: #fff; font-size: 16px; cursor: pointer; }
+  .lb-close:hover { background: #ffffff25; }
+  .lb-content { max-width: 1000px; width: 100%; }
+  .lb-content img, .lb-content video { width: 100%; max-height: 80vh; object-fit: contain; border-radius: 12px; display: block; }
+  .lb-ph { aspect-ratio: 16/9; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-family: 'Archivo'; font-weight: 800; color: #fff; }
+
+  @media (max-width: 720px) {
+    .stage { grid-template-columns: 1fr; }
+    .main { border-right: none; border-bottom: 1px solid var(--line); }
+    .lib { grid-template-columns: repeat(3,1fr); }
+    .media-grid { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="logo">
+      <div class="sphere"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#7ed321" stroke-width="2.5" stroke-linecap="round"><path d="M5 5 L19 19 M19 5 L5 19"/></svg></div>
+      <div class="logo-txt arc">XBOX <span>HQ</span></div>
+    </div>
+    <div class="tabs">
+      <button class="tab on" data-screen="home">Home</button>
+      <button class="tab" data-screen="pick">Game guide</button>
+      <button class="tab" data-screen="showcase">Showcase</button>
+    </div>
+    <div class="me">
+      <div class="gs"><div class="hex"><b>G</b></div><div class="gs-num" id="top-gs">--</div></div>
+      <div class="av" id="top-av">--</div>
+    </div>
+  </div>
+
+  <div class="demo-banner" id="demo-banner">Showing demo data — add your OpenXBL key in <b>.env</b> to load your real Xbox profile.</div>
+
+  <!-- HOME -->
+  <div id="s-home" class="screen on">
+    <div class="stage">
+      <div class="main">
+        <div class="hero">
+          <div class="eyebrow">Continue playing</div>
+          <h1 class="arc" id="hero-title">--</h1>
+          <div class="prog-wrap">
+            <div class="prog-bar"><div class="prog-fill" id="hero-prog" style="width:0"></div></div>
+            <div class="prog-txt" id="hero-sub">--</div>
+          </div>
+          <div class="hero-cta">
+            <button class="btn btn-pri" id="hero-resume">Resume guide</button>
+          </div>
+        </div>
+        <div class="lib-head"><div class="eyebrow">Your library</div></div>
+        <div class="lib" id="lib"><div class="loading">Loading your games…</div></div>
+      </div>
+
+      <div class="rail">
+        <div class="ring-card">
+          <div class="ring">
+            <svg width="84" height="84">
+              <circle cx="42" cy="42" r="36" fill="none" stroke="#232c1f" stroke-width="7"/>
+              <circle id="ring-arc" cx="42" cy="42" r="36" fill="none" stroke="#7ed321" stroke-width="7" stroke-linecap="round" stroke-dasharray="226" stroke-dashoffset="226"/>
+            </svg>
+            <div class="ring-ctr"><b id="ring-pct">--</b><span>UNLOCKED</span></div>
+          </div>
+          <div class="ring-info">
+            <div class="eyebrow">Completion</div>
+            <p id="ring-text">Across your recent games.</p>
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat"><b id="stat-games">--</b><span>Games</span></div>
+          <div class="stat"><b style="color:var(--live)" id="stat-gs">--</b><span>Score</span></div>
+          <div class="stat"><b id="stat-ach">--</b><span>Unlocked</span></div>
+        </div>
+        <div class="rail-sec">
+          <div class="eyebrow"><i></i><span id="friends-count">Friends online</span></div>
+          <div id="friends"><div class="loading">Loading…</div></div>
+        </div>
+        <div class="rail-sec" style="margin-top:24px">
+          <div class="eyebrow">Recent activity</div>
+          <div id="activity"><div class="loading">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PICK -->
+  <div id="s-pick" class="screen">
+    <div class="g-head">
+      <button class="g-back" data-screen="home">← Home</button>
+      <div class="g-titles"><h2 class="arc">Game guide</h2><p>Pick a game from your library</p></div>
+    </div>
+    <div class="g-body"><div class="lib" id="pick-lib"><div class="loading">Loading…</div></div></div>
+  </div>
+
+  <!-- GUIDE -->
+  <div id="s-guide" class="screen">
+    <div class="g-head">
+      <div class="g-head-bg" id="g-bg"></div>
+      <button class="g-back" data-screen="pick">← Games</button>
+      <div class="g-titles"><h2 class="arc" id="g-title">--</h2><p id="g-meta">--</p></div>
+    </div>
+    <div class="g-tabs">
+      <div class="g-tab on" data-gtab="a">Achievements</div>
+      <div class="g-tab" data-gtab="m">Missions</div>
+      <div class="g-tab" data-gtab="t">Tips &amp; tricks</div>
+    </div>
+    <div class="g-body">
+      <div id="gv-a"><div class="loading">Loading achievements…</div></div>
+      <div id="gv-m" style="display:none"></div>
+      <div id="gv-t" style="display:none"></div>
+    </div>
+  </div>
+
+  <!-- SHOWCASE -->
+  <div id="s-showcase" class="screen">
+    <div class="g-head">
+      <div class="g-titles"><h2 class="arc">Showcase</h2><p>Your captured clips and screenshots</p></div>
+      <div class="showcase-toggle" style="margin-left:auto">
+        <button class="seg on" data-media="clips">Clips</button>
+        <button class="seg" data-media="screenshots">Screenshots</button>
+      </div>
+    </div>
+    <div class="g-body">
+      <div id="media-grid" class="media-grid"><div class="loading">Loading…</div></div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX -->
+  <div id="lightbox" class="lightbox" aria-hidden="true">
+    <button class="lb-close" aria-label="Close">✕</button>
+    <div class="lb-content" id="lb-content"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
