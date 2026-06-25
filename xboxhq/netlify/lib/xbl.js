@@ -45,22 +45,41 @@ async function callXbl(endpoint) {
 }
 
 let myXuid = null;
+
+// OpenXBL's /account can come back in a couple of shapes depending on the
+// account/version. Handle both the settings-array shape and a flat shape.
+function extractProfile(raw) {
+  const pu = raw.profileUsers?.[0] || raw.profileUser;
+  if (pu && Array.isArray(pu.settings)) {
+    const s = Object.fromEntries(pu.settings.map((x) => [x.id, x.value]));
+    return {
+      xuid: pu.id || raw.id || null,
+      gamertag: s.Gamertag || s.ModernGamertag || 'Unknown',
+      gamerscore: Number(s.Gamerscore || 0),
+      avatar: s.GameDisplayPicRaw || s.AppDisplayPicRaw || null,
+      tier: s.AccountTier || null,
+      bio: s.Bio || '',
+      location: s.Location || '',
+    };
+  }
+  // Flat shape: { xuid, gamertag, gamerscore, profilePicture, accountTier, ... }
+  return {
+    xuid: raw.xuid || raw.id || null,
+    gamertag: raw.gamertag || raw.displayName || 'Unknown',
+    gamerscore: Number(raw.gamerscore ?? raw.gamerScore ?? 0),
+    avatar: raw.profilePicture || raw.displayPicRaw || raw.gameDisplayPicRaw || null,
+    tier: raw.accountTier || raw.tier || null,
+    bio: raw.bio || '',
+    location: raw.location || '',
+  };
+}
+
 async function getProfile() {
   const cached = getCached('profile');
   if (cached) return cached;
   const raw = await callXbl('/account');
-  const user = raw.profileUsers?.[0] || {};
-  const s = Object.fromEntries((user.settings || []).map((x) => [x.id, x.value]));
-  myXuid = user.id || null;
-  const profile = {
-    xuid: user.id,
-    gamertag: s.Gamertag || s.ModernGamertag || 'Unknown',
-    gamerscore: Number(s.Gamerscore || 0),
-    avatar: s.GameDisplayPicRaw || null,
-    tier: s.AccountTier || null,
-    bio: s.Bio || '',
-    location: s.Location || '',
-  };
+  const profile = extractProfile(raw);
+  myXuid = profile.xuid;
   setCached('profile', profile, 300);
   return profile;
 }
@@ -226,8 +245,12 @@ async function health() {
     out.upstreamStatus = r.status;
     if (r.ok) {
       const j = await r.json();
-      const tag = (j.profileUsers?.[0]?.settings || []).find((x) => x.id === 'Gamertag');
-      out.status = tag ? `OK — authenticated as ${tag.value}` : 'OK — got a response';
+      const p = extractProfile(j);
+      out.status = p.gamertag && p.gamertag !== 'Unknown'
+        ? `OK — authenticated as ${p.gamertag}`
+        : 'Authenticated, but could not read the profile shape — see rawAccount below.';
+      out.parsed = p;
+      out.rawAccountSample = JSON.stringify(j).slice(0, 1200);
     } else if (r.status === 401 || r.status === 403) {
       out.status = 'Key rejected (401/403). Re-copy your key and set up the "Xbox App" on your xbl.io profile.';
     } else if (r.status === 429) {
