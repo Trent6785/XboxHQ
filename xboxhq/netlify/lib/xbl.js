@@ -94,9 +94,23 @@ async function getXuid() {
 async function getLibrary() {
   const cached = getCached('library');
   if (cached) return cached;
-  const xuid = await getXuid();
-  const raw = await callXbl(`/player/titleHistory/${xuid}`);
-  const games = (raw.titles || []).map((t) => {
+
+  // Try the "self" endpoint first, then fall back to by-XUID. Querying your own
+  // history through the by-XUID route can come back empty on some accounts.
+  let titles = [];
+  try {
+    const self = await callXbl('/player/titleHistory');
+    titles = self.titles || self.titleHistory || [];
+  } catch (_) {}
+  if (!titles.length) {
+    try {
+      const xuid = await getXuid();
+      const byx = await callXbl(`/player/titleHistory/${xuid}`);
+      titles = byx.titles || byx.titleHistory || [];
+    } catch (_) {}
+  }
+
+  const games = titles.map((t) => {
     const a = t.achievement || {};
     return {
       titleId: t.titleId,
@@ -254,6 +268,24 @@ async function health() {
         : 'Authenticated, but could not read the profile shape — see rawAccount below.';
       out.parsed = p;
       out.rawAccountSample = JSON.stringify(j).slice(0, 1200);
+
+      // Diagnostic: show what title history returns (both endpoints) so we can
+      // see the real shape if the library comes back empty.
+      try {
+        const hdr = { 'X-Authorization': API_KEY, 'Accept': 'application/json' };
+        const selfR = await fetch(BASE + '/player/titleHistory', { headers: hdr });
+        const selfJ = await selfR.json().catch(() => ({}));
+        const selfC = selfJ.content || selfJ;
+        out.titleHistorySelf = { status: selfR.status, titleCount: (selfC.titles || []).length, sample: JSON.stringify(selfJ).slice(0, 700) };
+        if (p.xuid) {
+          const xR = await fetch(BASE + '/player/titleHistory/' + p.xuid, { headers: hdr });
+          const xJ = await xR.json().catch(() => ({}));
+          const xC = xJ.content || xJ;
+          out.titleHistoryByXuid = { status: xR.status, titleCount: (xC.titles || []).length };
+        }
+      } catch (e) {
+        out.titleHistoryError = e.message;
+      }
     } else if (r.status === 401 || r.status === 403) {
       out.status = 'Key rejected (401/403). Re-copy your key and set up the "Xbox App" on your xbl.io profile.';
     } else if (r.status === 429) {
