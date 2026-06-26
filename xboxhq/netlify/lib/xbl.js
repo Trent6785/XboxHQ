@@ -41,7 +41,9 @@ async function callXbl(endpoint) {
     err.status = res.status;
     throw err;
   }
-  return res.json();
+  const json = await res.json();
+  // OpenXBL wraps payloads as { content: {...}, code: 200 } — unwrap to the real data.
+  return json && typeof json === 'object' && 'content' in json ? json.content : json;
 }
 
 let myXuid = null;
@@ -49,6 +51,7 @@ let myXuid = null;
 // OpenXBL's /account can come back in a couple of shapes depending on the
 // account/version. Handle both the settings-array shape and a flat shape.
 function extractProfile(raw) {
+  raw = raw && raw.content ? raw.content : raw;
   const pu = raw.profileUsers?.[0] || raw.profileUser;
   if (pu && Array.isArray(pu.settings)) {
     const s = Object.fromEntries(pu.settings.map((x) => [x.id, x.value]));
