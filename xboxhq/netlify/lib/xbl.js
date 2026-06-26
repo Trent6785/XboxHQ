@@ -31,7 +31,7 @@ async function callXbl(endpoint) {
     throw err;
   }
   const res = await fetch(BASE + endpoint, {
-    headers: { 'X-Authorization': API_KEY, 'Accept': 'application/json' },
+    headers: { 'X-Authorization': API_KEY, 'Accept': 'application/json', 'Accept-Language': 'en-US' },
   });
   if (!res.ok) {
     let body = '';
@@ -257,7 +257,7 @@ async function health() {
   }
   try {
     const r = await fetch(BASE + '/account', {
-      headers: { 'X-Authorization': API_KEY, 'Accept': 'application/json' },
+      headers: { 'X-Authorization': API_KEY, 'Accept': 'application/json', 'Accept-Language': 'en-US' },
     });
     out.upstreamStatus = r.status;
     if (r.ok) {
@@ -272,7 +272,7 @@ async function health() {
       // Diagnostic: show what title history returns (both endpoints) so we can
       // see the real shape if the library comes back empty.
       try {
-        const hdr = { 'X-Authorization': API_KEY, 'Accept': 'application/json' };
+        const hdr = { 'X-Authorization': API_KEY, 'Accept': 'application/json', 'Accept-Language': 'en-US' };
         const selfR = await fetch(BASE + '/player/titleHistory', { headers: hdr });
         const selfJ = await selfR.json().catch(() => ({}));
         const selfC = selfJ.content || selfJ;
